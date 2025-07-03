@@ -88,9 +88,8 @@ export default function CosmicGame() {
   };
 
   const gameLoop = useCallback(() => {
-    if (!gameState.isPlaying || gameState.gameOver) return;
-
     setGameState((prev) => {
+      if (!prev.isPlaying || prev.gameOver) return prev;
       let newCapibaraY = prev.capibaraY + prev.capibaraVelocity;
       let newCapibaraVelocity = prev.capibaraVelocity + GRAVITY;
 
@@ -151,12 +150,18 @@ export default function CosmicGame() {
         secretCode,
       };
     });
-  }, [gameState.isPlaying, gameState.gameOver]);
+  }, []);
 
   useEffect(() => {
+    const animate = () => {
+      gameLoop();
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
     if (gameState.isPlaying && !gameState.gameOver) {
-      animationRef.current = requestAnimationFrame(gameLoop);
+      animationRef.current = requestAnimationFrame(animate);
     }
+
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
